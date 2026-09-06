@@ -1,0 +1,3 @@
+<launch>
+<node pkg="raicom_mission" type="scene_generator_node" name="scene_generator_node" output="screen"/>
+</launch>

@@ -1,0 +1,19 @@
+<launch>
+    <!-- 1. 定义参数 (args)，设置默认值，方便后续在命令行覆盖 -->
+    <arg name="port" default="/dev/ttyUSB0" doc="Arduino 连接的串口路径" />
+    <arg name="baud" default="57600" doc="串口通信波特率" />
+
+    <!-- 2. 启动 rosserial 节点 -->
+    <node pkg="rosserial_python" 
+          type="serial_node.py" 
+          name="arduino_serial_node" 
+          output="screen"
+          respawn="false">
+          
+        <!-- 3. 将定义的参数传递给节点 -->
+        <param name="port" value="$(arg port)" />
+        <!-- 注意：baud 必须指定 type="int"，否则会被识别为字符串导致串口打开失败 -->
+        <param name="baud" value="$(arg baud)" type="int" /> 
+        
+    </node>
+</launch>

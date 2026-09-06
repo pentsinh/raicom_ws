@@ -1,0 +1,12 @@
+<!-- launch/map_accumulator.launch -->
+<launch>
+    <node name="map_accumulator" pkg="ring_detector" type="map_accumulator_node" output="screen">
+        <rosparam file="$(find ring_detector)/config/map_accumulator.yaml" command="load"/>
+        
+        <!-- 可以在这里覆盖参数 -->
+        <!--
+        <param name="voxel_leaf_size" value="0.03"/>
+        <param name="save_directory" value="/tmp/my_maps"/>
+        -->
+    </node>
+</launch>

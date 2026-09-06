@@ -1,0 +1,41 @@
+<launch>
+
+  <!-- <include file="$(find complete_mission)/launch/ego_planner_mid360.launch" /> -->
+  
+  
+  <node pkg="raicom_mission" type="raicom_mission" name="raicom_mission" output="screen">
+    
+    <!-- <param name="target1_x" value="-1.3"/> -->
+    <param name="target1_x" value="-1.0"/>
+    <param name="target1_y" value="0.0"/>
+
+    <param name="target2_x" value="-2.35"/>
+    <param name="target2_y" value="0.0"/>
+    
+    <param name="target3_x" value="-2.35"/>
+    <param name="target3_y" value="-2.65"/>
+    
+    <param name="target4_x" value="-1.3"/>
+    <param name="target4_y" value="-2.65"/>
+
+    <!-- <param name="target5_x" value="-0.45"/>
+    <param name="target5_y" value="-2.1"/> -->
+    <param name="target5_x" value="-0.6"/>
+    <param name="target5_y" value="-2.2"/>
+
+    <param name="target6_x" value="-0.35"/>
+    <param name="target6_y" value="-1.7"/>
+
+    <param name="target7_x" value="-0.35"/>
+    <param name="target7_y" value="-2.6"/>
+
+    <param name="target8_x" value="0.0"/>
+    <param name="target8_y" value="0.0"/>
+
+
+    
+    <param name="if_debug" value="1"/>    
+    <param name="err_max" value="0.1" />
+    <param name="err_max_ego" value="0.1" />
+  </node>
+</launch>

@@ -1,0 +1,52 @@
+# map_accumulator.yaml
+input_topic: "/cloud_registered"
+map_frame: "world" # 或 "camera_init"，根据你的Fast-LIO设置
+base_frame: "base_link"
+voxel_leaf_size: 0.05
+downsampled_voxel_leaf_size: 0.05
+max_points: 10000000
+save_directory: "/home/$(USER)/fastlio_maps" # 请替换 $(USER) 或使用绝对路径
+save_interval: 30.0
+enable_realtime_preview: true
+preview_rate: 5
+
+# --- 关键：启用并配置 ROI ---
+enable_map_roi_filter: true # 必须设为 true 才会生效
+map_roi_min_x: -5.0
+map_roi_max_x: 1.0
+map_roi_min_y: -5.0
+map_roi_max_y: 1.0
+map_roi_min_z: 0.3
+map_roi_max_z: 2.0
+
+#下面的参数用于场外调试
+#map_roi_min_x: -3.5
+#map_roi_max_x: 7
+#map_roi_min_y: 1.6
+#map_roi_max_y: 11.1
+#map_roi_min_z: -0.55
+#map_roi_max_z: 2.95
+
+
+
+
+# --- 新增：DisROI 配置（忽略/丢弃区域）---
+# 注意：DisROI区域是在世界坐标系(map_frame)下定义的
+# 该区域内的所有点云将被直接舍弃，不参与地图积累
+enable_disroi_filter: false # 启用DisROI过滤
+disroi_min_x: -0.1          # 世界坐标系下的X轴范围
+disroi_max_x: 5.5       # 例如：机器人起始位置附近区域
+disroi_min_y: -9.0        # 世界坐标系下的Y轴范围  
+disroi_max_y: 0.1        # 这些点云将被直接丢弃
+disroi_min_z: -100.0          # 世界坐标系下的Z轴范围
+disroi_max_z: 100.0          # 不参与地图积累
+
+
+# =========================================================
+# --- !!! 新增：高Z支撑柱清除逻辑配置 !!! ---
+# =========================================================
+enable_initial_high_z_filter: true   # 是否启用此逻辑
+grid_size: 0.03                  # XY网格大小 (m)
+custom_max_height: 2.25             # Z轴最高阈值 (超过此高度的点不参与标记，避免清除天花板/防护网)
+#custom_max_height: 2.975
+high_z_filter_duration: 150         # 持续标记网格的时间 (秒)，60秒后不再标记新柱子，节省算力
