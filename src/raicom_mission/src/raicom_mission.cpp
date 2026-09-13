@@ -12,18 +12,18 @@
 // 全局变量定义
 int mission_num = 0; // 任务标志位
 
-int laser_altitude = 0.9; //激光打靶高度
+int laser_altitude = 0.9; // 激光打靶高度
 
 // 目标点坐标数组
 vector<float> target_array_x;
 vector<float> target_array_y;
 
-//障碍物坐标
-float obs_array[4][2]={{-2.05,-0.8},{-2.65,-0.8},{-2.05,-2.05},{-2.65,-2.05}}; // 障碍物坐标数组
+// 障碍物坐标
+float obs_array[4][2] = {{-2.05, -0.8}, {-2.65, -0.8}, {-2.05, -2.05}, {-2.65, -2.05}}; // 障碍物坐标数组
 // float obs_array[4][2]={{-2.05+0.65,-0.8+0.75},{-2.65+0.65,-0.8+0.75},{-2.05+0.65,-2.05+0.75},{-2.65+0.65,-2.05+0.75}}; // 障碍物坐标数组
-float obs_radious=0.15; //障碍物半径
-float obs_height=1.0; //障碍物高度
-bool is_obs[]={false,false,false,false}; //障碍物是否存在标志位
+float obs_radious = 0.15;                     // 障碍物半径
+float obs_height = 1.0;                       // 障碍物高度
+bool is_obs[] = {false, false, false, false}; // 障碍物是否存在标志位
 bool case4_initialized = false;
 bool case4_obs_ready = false;
 
@@ -31,7 +31,7 @@ bool case4_obs_ready = false;
 float target_array[7][2]; // 目标点坐标数组
 float if_debug = 0;       // 是否开启调试模式
 
-float err_max = 0;     // 最大误差
+float err_max = 0; // 最大误差
 // float err_max_ego = 0; // ego规划器最大误差
 
 string laser_target[2]; // 激光靶标识别结果
@@ -126,7 +126,7 @@ void stretchedCloudCb(const sensor_msgs::PointCloud2ConstPtr &msg)
             continue;
         }
 
-        if (point.z < obs_height*0.5 || point.z > obs_height*1.5)
+        if (point.z < obs_height * 0.5 || point.z > obs_height * 1.5)
         {
             continue;
         }
@@ -310,7 +310,7 @@ int main(int argc, char **argv)
                 last_request = ros::Time::now();
             }
         }
-        // 当无人机到达起飞点高度后，悬停3秒后进入任务模式，提高视觉效果
+        // 当无人机到达起飞点高度后，悬停0秒后进入任务模式，提高视觉效果
         if (fabs(local_pos.pose.pose.position.z - ALTITUDE) < err_max)
         {
 
@@ -357,7 +357,7 @@ int main(int argc, char **argv)
             if (mission_pos_cruise(target_x, target_y, ALTITUDE, 0, err_max))
             {
                 last_request = ros::Time::now();
-                mission_num=4;
+                mission_num = 4;
             }
             break;
         }
@@ -382,54 +382,94 @@ int main(int argc, char **argv)
             {
                 case4_initialized = false;
                 last_request = ros::Time::now();
+                mission_num = 41;
+            }
+            break;
+        }
+        case 41: // 进入避障区
+        {
+            float target_x, target_y;
+            if (!is_obs[0]) // 障碍物1不存在
+            {
+                target_x = obs_array[0][0];
+                target_y = obs_array[0][1] + 0.8;
+            }
+            else
+            {
+                target_x = obs_array[1][0];
+                target_y = obs_array[1][1] + 0.8;
+            }
+            if (mission_pos_cruise(target_x, target_y, ALTITUDE, 0, err_max))
+            {
+                last_request = ros::Time::now();
                 mission_num = 5;
             }
             break;
         }
 
-        case 5:
+        case 5: // 前往避障点1
         {
             float target_x, target_y;
-            if(!is_obs[0])//障碍物1不存在
+            if (!is_obs[0]) // 障碍物1不存在
             {
                 target_x = obs_array[0][0];
-                target_y = obs_array[0][1];
+                target_y = obs_array[0][1] - 0.6;
             }
             else
             {
                 target_x = obs_array[1][0];
-                target_y = obs_array[1][1];
+                target_y = obs_array[1][1] - 0.6;
             }
-             if (mission_pos_cruise(target_x, target_y, ALTITUDE, 0, err_max))
+            if (mission_pos_cruise(target_x, target_y, ALTITUDE, 0, err_max))
             {
                 last_request = ros::Time::now();
-                mission_num=51;
+                mission_num = 51;
             }
             break;
         }
 
-        case 51:
+        case 51: // 前往避障点2
         {
             float target_x, target_y;
-            if(!is_obs[2])//障碍物3不存在
+            if (!is_obs[2]) // 障碍物3不存在
             {
                 target_x = obs_array[2][0];
-                target_y = obs_array[2][1];
+                target_y = obs_array[2][1] + 0.6;
             }
-             else
+            else
             {
                 target_x = obs_array[3][0];
-                target_y = obs_array[3][1];
+                target_y = obs_array[3][1] + 0.6;
             }
-             if (mission_pos_cruise(target_x, target_y, ALTITUDE, 0, err_max))
+            if (mission_pos_cruise(target_x, target_y, ALTITUDE, 0, err_max))
             {
                 last_request = ros::Time::now();
-                mission_num=6;
+                mission_num = 52;
             }
             break;
         }
 
-                
+        case 52: // 出避障区
+        {
+            float target_x, target_y;
+            if (!is_obs[2]) // 障碍物3不存在
+            {
+                target_x = obs_array[2][0];
+                target_y = obs_array[2][1] - 0.5;
+            }
+            else
+            {
+                target_x = obs_array[3][0];
+                target_y = obs_array[3][1] - 0.5;
+            }
+            if (mission_pos_cruise(target_x, target_y, ALTITUDE, 0, err_max))
+            {
+                last_request = ros::Time::now();
+                mission_num = 6;
+            }
+            break;
+        }
+
         case 6: // 识别激光靶标
         {
             if (!case6_initialized)
@@ -502,7 +542,7 @@ int main(int argc, char **argv)
         {
             float target_x = target_array_x[4];
             float target_y = target_array_y[4];
-            if (mission_pos_cruise(target_x, target_y, ALTITUDE, 0, err_max/2))
+            if (mission_pos_cruise(target_x, target_y, ALTITUDE, 0, err_max / 2))
             {
                 std_msgs::Int32 arduino_cmd_msg;
                 arduino_cmd_msg.data = 2; // 2 代表关闭电磁铁
@@ -519,7 +559,7 @@ int main(int argc, char **argv)
             target_y = target_array_y[5];
 
             // if (mission_pos_cruise(target_x, target_y, laser_altitude, 0, err_max))
-            if (mission_pos_cruise(target_x, target_y, ALTITUDE-0.2, 0, err_max))
+            if (mission_pos_cruise(target_x, target_y, ALTITUDE - 0.2, 0, err_max))
             {
                 last_request = ros::Time::now();
                 mission_num++;
@@ -548,7 +588,7 @@ int main(int argc, char **argv)
                 target_y = target_array_y[6];
             }
             // mission_pos_cruise(target_x, target_y, laser_altitude, 0, err_max);
-            mission_pos_cruise(target_x, target_y, ALTITUDE-0.2, 0, err_max);
+            mission_pos_cruise(target_x, target_y, ALTITUDE - 0.2, 0, err_max);
             // 悬停3秒后进入下一状态
             if (ros::Time::now() - last_request >= ros::Duration(3.0))
             {
@@ -559,10 +599,10 @@ int main(int argc, char **argv)
         }
 
         /*********开始返程*********/
-        case 12: // 前往目标点4
+        case 12: // 前往目标点7
         {
-            float target_x = target_array_x[3];
-            float target_y = target_array_y[3];
+            float target_x = target_array_x[6];
+            float target_y = target_array_y[6];
             if (mission_pos_cruise(target_x, target_y, ALTITUDE, 0, err_max))
             {
                 last_request = ros::Time::now();
@@ -571,56 +611,84 @@ int main(int argc, char **argv)
             break;
         }
 
-        case 13:
+        case 13: // 准备进入避障区
         {
             float target_x, target_y;
-            if(!is_obs[2])//障碍物3不存在
+            if (!is_obs[2]) // 障碍物3不存在
             {
                 target_x = obs_array[2][0];
-                target_y = obs_array[2][1];
+                target_y = obs_array[2][1] - 0.6;
             }
-             else
+            else
             {
                 target_x = obs_array[3][0];
-                target_y = obs_array[3][1];
+                target_y = obs_array[3][1] - 0.6;
             }
-             if (mission_pos_cruise(target_x, target_y, ALTITUDE, 0, err_max))
+            if (mission_pos_cruise(target_x, target_y, ALTITUDE, 0, err_max))
             {
                 last_request = ros::Time::now();
-                mission_num=131;
+                mission_num = 131;
             }
             break;
         }
 
-        case 131:
+        case 131: // 前往避障点2
         {
             float target_x, target_y;
-            if(!is_obs[0])//障碍物1不存在
+            if (!is_obs[2]) // 障碍物3不存在
+            {
+                target_x = obs_array[2][0];
+                target_y = obs_array[2][1] + 0.6;
+            }
+            else
+            {
+                target_x = obs_array[3][0];
+                target_y = obs_array[3][1] + 0.6;
+            }
+            if (mission_pos_cruise(target_x, target_y, ALTITUDE, 0, err_max))
+            {
+                last_request = ros::Time::now();
+                mission_num = 132;
+            }
+            break;
+        }
+
+        case 132: // 前往避障点1
+        {
+            float target_x, target_y;
+            if (!is_obs[0]) // 障碍物1不存在
             {
                 target_x = obs_array[0][0];
-                target_y = obs_array[0][1];
+                target_y = obs_array[0][1] - 0.6;
             }
             else
             {
                 target_x = obs_array[1][0];
-                target_y = obs_array[1][1];
+                target_y = obs_array[1][1] - 0.6;
             }
-             if (mission_pos_cruise(target_x, target_y, ALTITUDE, 0, err_max))
+            if (mission_pos_cruise(target_x, target_y, ALTITUDE, 0, err_max))
             {
                 last_request = ros::Time::now();
-                mission_num=14;
+                mission_num = 14;
             }
             break;
         }
 
-        
-
-        case 14: // 前往目标点2
+        case 14: // 出避障区
         {
-            float target_x = target_array_x[1];
-            float target_y = target_array_y[1];
+            float target_x, target_y;
+            if (!is_obs[0]) // 障碍物1不存在
+            {
+                target_x = obs_array[0][0];
+                target_y = obs_array[0][1] + 0.8;
+            }
+            else
+            {
+                target_x = obs_array[1][0];
+                target_y = obs_array[1][1] + 0.8;
+            }
 
-            if (mission_pos_cruise(target_x, target_y, ALTITUDE,0, err_max))
+            if (mission_pos_cruise(target_x, target_y, ALTITUDE, 0, err_max))
             {
                 last_request = ros::Time::now();
                 mission_num++;

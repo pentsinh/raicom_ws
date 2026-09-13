@@ -36,6 +36,6 @@
     
     <param name="if_debug" value="1"/>    
     <param name="err_max" value="0.1" />
-    <param name="err_max_ego" value="0.1" />
+    <!-- <param name="err_max_ego" value="0.1" /> -->
   </node>
 </launch>
