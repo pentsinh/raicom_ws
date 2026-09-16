@@ -1,0 +1,3 @@
+<launch>
+<node pkg="mid360_px4" type="mid360_to_px4" name="mid360_to_px4" output="screen"/>
+</launch>

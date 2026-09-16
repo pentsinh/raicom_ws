@@ -1,0 +1,25 @@
+<launch>
+<!-- Launch参数定义 -->
+<arg name="visualize" default="false" doc="是否显示检测结果图像窗口"/>
+<arg name="show_camera" default="false" doc="是否显示原始摄像头图像窗口"/>
+
+<node name="yolo_detector" pkg="yolov8_ros" type="ros_predict_endurance.py" output="screen">
+    <param name="image_topic" value="/camera/image_raw"/>
+    <param name="pub_topic" value="/object_position"/>
+    <param name="use_cpu" value="false" />
+    <param name="weight_path" value="$(find yolov8_ros)/weights/craic.pt"/>
+    <param name="visualize" value="$(arg visualize)"/>
+    <param name="enhanced" value="true"/>
+    <param name="image_pub_topic" value="/yolov8/detection_image"/>
+    <param name="conf" value="0.75" />
+</node>
+
+<!-- 可选：显示原始摄像头画面 -->
+<group if="$(arg show_camera)">
+    <node name="camera_image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
+        <remap from="image" to="/camera/image_raw"/>
+        <param name="autosize" value="true" />
+        <param name="window_name" value="Camera Feed" />
+    </node>
+</group>
+</launch>

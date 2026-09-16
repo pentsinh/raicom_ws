@@ -1,0 +1,31 @@
+<launch>
+<!-- Launch参数定义 -->
+<arg name="visualize" default="false" doc="是否显示检测结果图像窗口"/>
+<arg name="show_camera" default="false" doc="是否显示原始摄像头图像窗口"/>
+<arg name="imgsz" default="320" doc="YOLO推理输入尺寸，越小越省显存"/>
+<arg name="max_det" default="5" doc="每帧最多保留的检测框数量"/>
+<arg name="half" default="true" doc="是否启用半精度推理，仅GPU有效"/>
+
+<node name="yolo_detector" pkg="yolov8_ros" type="ros_predict.py">
+    <param name="image_topic" value="/usb_cam/image_raw"/>
+    <param name="pub_topic" value="/object_position"/>
+    <param name="use_cpu" value="false" />
+    <param name="weight_path" value="$(find yolov8_ros)/weights/epoch10-v4-0902.pt"/>
+    <param name="visualize" value="$(arg visualize)"/>
+    <param name="enhanced" value="true"/>
+    <param name="image_pub_topic" value="/yolov8/detection_image"/>
+    <param name="conf" value="0.75" />
+    <param name="imgsz" value="$(arg imgsz)" />
+    <param name="max_det" value="$(arg max_det)" />
+    <param name="half" value="$(arg half)" />
+</node>
+
+<!-- 可选：显示原始摄像头画面 -->
+<group if="$(arg show_camera)">
+    <node name="camera_image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
+        <remap from="image" to="/camera/image_raw"/>
+        <param name="autosize" value="true" />
+        <param name="window_name" value="Camera Feed" />
+    </node>
+</group>
+</launch>

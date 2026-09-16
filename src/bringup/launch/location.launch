@@ -1,0 +1,20 @@
+<launch> 
+    
+    <include file="$(find bringup)/launch/px4.launch" />
+    
+    <include file="$(find livox_ros_driver2)/launch_ROS1/msg_MID360.launch" />
+    
+    <include file="$(find fast_lio)/launch/mapping_mid360.launch" />
+    
+    <node name='mid360_to_px4' pkg="mid360_px4" type="mid360_to_px4" output="screen" />
+    
+    <!-- 发布一个雷达body到机器人足端body_foot的静态映射 -->
+	<!-- <node pkg="tf2_ros" type="static_transform_publisher" name="tf_pub_1" args="0 0 0 0 0 0 body body_foot" /> -->
+	<!-- 发布一个雷达初始位置camera_init到机器人足端初始位置body_init的静态映射 -->
+	<!-- <node pkg="tf2_ros" type="static_transform_publisher" name="tf_pub_2" args="0 0 0 0 0 0 camera_init robot_foot_init" /> -->
+	<!-- 发布一个雷达初始位置camera_init到map的静态映射 -->
+	<!-- <node pkg="tf2_ros" type="static_transform_publisher" name="tf_pub_3" args="0 0 0 0 0 0 map camera_init" /> -->
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="tf_pub1" args="0 0 0 0 0 0 body base_link" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="tf_pub2" args="0 0 0 0 0 0 world camera_init" />
+</launch>
