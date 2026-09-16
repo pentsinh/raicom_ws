@@ -311,7 +311,8 @@ int main(int argc, char **argv)
             }
         }
         // 当无人机到达起飞点高度后，悬停0秒后进入任务模式，提高视觉效果
-        if (fabs(local_pos.pose.pose.position.z - ALTITUDE) < err_max)
+        if (fabs(local_pos.pose.pose.position.z -
+                 (init_position_z_take_off + ALTITUDE)) < err_max)
         {
 
             mission_num = 3;
@@ -708,14 +709,32 @@ int main(int argc, char **argv)
         }
         case 16: // 在降落点降落
         {
-            if (mission_pos_cruise(0.0, 0.0, 0.2, 0, err_max))
+            // 当无人机降至距离起飞点 0.2 m 以内时，切换手动模式并锁桨。
+            if (local_pos.pose.pose.position.z <= init_position_z_take_off + 0.2)
             {
-                mission_num = -1; // 任务结束
+                if (current_state.mode == "OFFBOARD")
+                {
+                    offb_set_mode.request.custom_mode = "MANUAL";
+                    set_mode_client.call(offb_set_mode);
+                }
+
+                if (current_state.armed)
+                {
+                    arm_cmd.request.value = false;
+                    if (arming_client.call(arm_cmd) && arm_cmd.response.success)
+                    {
+                        ROS_INFO("Disarm successfully!");
+                        mission_num = -1; // 任务结束
+                    }
+                }
             }
             else if (ros::Time::now() - last_request >= ros::Duration(5.0))
             {
                 mission_num = -1; // 任务结束
+                ROS_INFO("land failed");
             }
+
+            mission_pos_cruise(0.0, 0.0, 0.2, 0, err_max);
             break;
         }
         default:
