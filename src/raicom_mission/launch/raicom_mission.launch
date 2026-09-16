@@ -20,8 +20,8 @@
 
     <!-- <param name="target5_x" value="-0.45"/>
     <param name="target5_y" value="-2.1"/> -->
-    <param name="target5_x" value="-0.6"/>
-    <param name="target5_y" value="-2.2"/>
+    <param name="target5_x" value="-0.35"/>
+    <param name="target5_y" value="-2.35"/>
 
     <param name="target6_x" value="-0.35"/>
     <param name="target6_y" value="-1.7"/>

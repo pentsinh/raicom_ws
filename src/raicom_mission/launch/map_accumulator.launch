@@ -1,7 +1,7 @@
 <!-- launch/map_accumulator.launch -->
 <launch>
-    <node name="map_accumulator" pkg="ring_detector" type="map_accumulator_node" output="screen">
-        <rosparam file="$(find ring_detector)/config/map_accumulator.yaml" command="load"/>
+    <node name="map_accumulator" pkg="raicom_mission" type="map_accumulator_node" output="screen">
+        <rosparam file="$(find raicom_mission)/config/map_accumulator.yaml" command="load"/>
         
         <!-- 可以在这里覆盖参数 -->
         <!--

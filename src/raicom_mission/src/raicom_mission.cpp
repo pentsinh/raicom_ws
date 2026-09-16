@@ -527,7 +527,7 @@ int main(int argc, char **argv)
 
             float target_x = target_array_x[4];
             float target_y = target_array_y[4];
-            mission_pos_cruise(target_x, target_y, ALTITUDE, 0, err_max);
+            mission_pos_cruise(target_x, target_y, ALTITUDE / 2, 0, err_max);
 
             if (drop_target_ready && ros::Time::now() - last_request >= ros::Duration(3.0))
             {
@@ -542,7 +542,7 @@ int main(int argc, char **argv)
         {
             float target_x = target_array_x[4];
             float target_y = target_array_y[4];
-            if (mission_pos_cruise(target_x, target_y, ALTITUDE, 0, err_max / 2))
+            if (mission_pos_cruise(target_x, target_y, ALTITUDE / 2, 0, err_max / 2))
             {
                 std_msgs::Int32 arduino_cmd_msg;
                 arduino_cmd_msg.data = 2; // 2 代表关闭电磁铁
