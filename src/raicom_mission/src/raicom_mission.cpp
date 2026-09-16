@@ -721,11 +721,13 @@ int main(int argc, char **argv)
                 if (current_state.armed)
                 {
                     arm_cmd.request.value = false;
-                    if (arming_client.call(arm_cmd) && arm_cmd.response.success)
-                    {
-                        ROS_INFO("Disarm successfully!");
-                        mission_num = -1; // 任务结束
-                    }
+                    arming_client.call(arm_cmd);
+                }
+
+                if (arm_cmd.response.success)
+                {
+                    ROS_INFO("Disarm successfully!");
+                    mission_num = -1; // 任务结束
                 }
             }
             else if (ros::Time::now() - last_request >= ros::Duration(5.0))
@@ -734,7 +736,7 @@ int main(int argc, char **argv)
                 ROS_INFO("land failed");
             }
 
-            mission_pos_cruise(0.0, 0.0, 0.2, 0, err_max);
+            mission_pos_cruise(0.0, 0.0, 0.0, 0, err_max);
             break;
         }
         default:
