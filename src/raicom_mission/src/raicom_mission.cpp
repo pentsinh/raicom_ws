@@ -556,8 +556,16 @@ int main(int argc, char **argv)
         case 10: // 前往打把点
         {
             float target_x, target_y;
-            target_x = target_array_x[5];
-            target_y = target_array_y[5];
+            if (laser_target[0] == drop_target)
+            {
+                target_x = target_array_x[5];
+                target_y = target_array_y[5];
+            }
+            else
+            {
+                target_x = target_array_x[6];
+                target_y = target_array_y[6];
+            }
 
             // if (mission_pos_cruise(target_x, target_y, laser_altitude, 0, err_max))
             if (mission_pos_cruise(target_x, target_y, ALTITUDE - 0.2, 0, err_max))
