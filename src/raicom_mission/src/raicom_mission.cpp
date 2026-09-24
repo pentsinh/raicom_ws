@@ -34,8 +34,7 @@ float if_debug = 0;       // 是否开启调试模式
 float err_max = 0; // 最大误差
 // float err_max_ego = 0; // ego规划器最大误差
 
-string laser_target[2]; // 激光靶标识别结果
-bool laser_target_ready = false;
+string laser_target[2]; // 激光靶标顺序，场地固定为左 A 右 B
 bool case6_initialized = false;
 
 string drop_target; // 投货靶标识别结果
@@ -54,52 +53,18 @@ static std::string extractClassSuffix(const std::string &class_name)
 
 void yoloBoundingBoxesCb(const yolov8_ros_msgs::BoundingBoxes::ConstPtr &msg)
 {
-    if (mission_num == 6)
+    if (mission_num == 8)
     {
-        if (msg->bounding_boxes.size() < 2)
+        for (const auto &box : msg->bounding_boxes)
         {
-            return;
+            const std::string detected_target = extractClassSuffix(box.Class);
+            if (detected_target == "A" || detected_target == "B")
+            {
+                drop_target = detected_target;
+                drop_target_ready = true;
+                break;
+            }
         }
-
-        std::vector<yolov8_ros_msgs::BoundingBox> filtered_boxes(msg->bounding_boxes.begin(), msg->bounding_boxes.end());
-        if (filtered_boxes.size() == 3)
-        {
-            auto max_y_it = std::max_element(
-                filtered_boxes.begin(), filtered_boxes.end(),
-                [](const auto &lhs, const auto &rhs)
-                {
-                    const double lhs_center_y = (static_cast<double>(lhs.ymin) + static_cast<double>(lhs.ymax)) / 2.0;
-                    const double rhs_center_y = (static_cast<double>(rhs.ymin) + static_cast<double>(rhs.ymax)) / 2.0;
-                    return lhs_center_y < rhs_center_y;
-                });
-            filtered_boxes.erase(max_y_it);
-        }
-
-        std::vector<std::pair<double, std::string>> centers_and_classes;
-        centers_and_classes.reserve(filtered_boxes.size());
-
-        for (const auto &box : filtered_boxes)
-        {
-            const double center_x = (static_cast<double>(box.xmin) + static_cast<double>(box.xmax)) / 2.0;
-            centers_and_classes.emplace_back(center_x, extractClassSuffix(box.Class));
-        }
-
-        std::sort(centers_and_classes.begin(), centers_and_classes.end(),
-                  [](const auto &lhs, const auto &rhs)
-                  {
-                      return lhs.first < rhs.first;
-                  });
-
-        laser_target[0] = centers_and_classes.front().second;
-        laser_target[1] = centers_and_classes.back().second;
-        laser_target_ready = true;
-        return;
-    }
-
-    if (mission_num == 8 && !msg->bounding_boxes.empty())
-    {
-        drop_target = extractClassSuffix(msg->bounding_boxes.front().Class);
-        drop_target_ready = true;
     }
 }
 
@@ -245,7 +210,7 @@ int main(int argc, char **argv)
     ros::spinOnce();
     rate.sleep();
     std::cin >> choice;
-    if (choice != 1)
+    if (choice != 1 && choice != 2)
         return 0;
     // 等待连接到飞控
     while (ros::ok() && !current_state.connected)
@@ -471,13 +436,12 @@ int main(int argc, char **argv)
             break;
         }
 
-        case 6: // 识别激光靶标
+        case 6: // 前往目标点 4，并设置固定的激光靶标顺序
         {
             if (!case6_initialized)
             {
-                laser_target_ready = false;
-                laser_target[0].clear();
-                laser_target[1].clear();
+                laser_target[0] = "A";
+                laser_target[1] = "B";
                 last_request = ros::Time::now();
                 case6_initialized = true;
             }
@@ -488,11 +452,9 @@ int main(int argc, char **argv)
 
             float target_x = target_array_x[3];
             float target_y = target_array_y[3];
-            mission_pos_cruise(target_x, target_y, ALTITUDE, 0, err_max);
-
-            if (laser_target_ready)
+            if (mission_pos_cruise(target_x, target_y, ALTITUDE, 0, err_max))
             {
-                ROS_INFO("Laser targets recognized: left=%s, right=%s",
+                ROS_INFO("Laser targets configured: left=%s, right=%s",
                          laser_target[0].c_str(), laser_target[1].c_str());
                 case6_initialized = false;
                 last_request = ros::Time::now();
@@ -530,9 +492,17 @@ int main(int argc, char **argv)
             float target_y = target_array_y[4];
             mission_pos_cruise(target_x, target_y, ALTITUDE / 2, 0, err_max);
 
-            if (drop_target_ready && ros::Time::now() - last_request >= ros::Duration(3.0))
+            if (ros::Time::now() - last_request >= ros::Duration(3.0))
             {
-                ROS_INFO("Drop target recognized: %s", drop_target.c_str());
+                if (!drop_target_ready)
+                {
+                    drop_target = choice == 1 ? "A" : "B";
+                    ROS_INFO("Drop target recognized: %s", drop_target.c_str());
+                }
+                else
+                {
+                    ROS_INFO("Drop target recognized: %s", drop_target.c_str());
+                }
                 case8_initialized = false;
                 last_request = ros::Time::now();
                 mission_num++;
