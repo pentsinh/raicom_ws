@@ -33,7 +33,7 @@
 
 using namespace std;
 
-#define ALTITUDE 1.1
+#define ALTITUDE 1.0
 
 mavros_msgs::PositionTarget setpoint_raw;
 
