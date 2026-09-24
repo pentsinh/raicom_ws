@@ -312,7 +312,7 @@ int main(int argc, char **argv)
         }
         // 当无人机到达起飞点高度后，悬停0秒后进入任务模式，提高视觉效果
         if (fabs(local_pos.pose.pose.position.z -
-                 (init_position_z_take_off + ALTITUDE)) < err_max)
+                 (init_position_z_take_off + ALTITUDE)) < 2 * err_max)
         {
 
             mission_num = 3;
@@ -543,7 +543,7 @@ int main(int argc, char **argv)
         {
             float target_x = target_array_x[4];
             float target_y = target_array_y[4];
-            if (mission_pos_cruise(target_x, target_y, ALTITUDE / 2, 0, err_max / 2))
+            if (mission_pos_cruise(target_x, target_y, ALTITUDE / 2, 0, err_max / 3))
             {
                 std_msgs::Int32 arduino_cmd_msg;
                 arduino_cmd_msg.data = 2; // 2 代表关闭电磁铁
