@@ -2,7 +2,7 @@
     <param name="use_cpu" value="true" />
 
     <node name="yolov8_ros" pkg="yolov8_ros" type="yolo_v8.py" output="screen">
-        <param name="weight_path" value="/home/airhust/Downloads/epoch190.pt" />
+        <param name="weight_path" value="//home/airhust/Downloads/epoch190.pt" />
 
         <param name="image_topic" value="/yolo/input_image" />
         <param name="pub_topic" value="/yolov8/BoundingBoxes" />

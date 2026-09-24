@@ -12,7 +12,7 @@
 // 全局变量定义
 int mission_num = 0; // 任务标志位
 
-int laser_altitude = 0.9; // 激光打靶高度
+int laser_altitude = 1.05; // 激光打靶高度
 
 // 目标点坐标数组
 vector<float> target_array_x;

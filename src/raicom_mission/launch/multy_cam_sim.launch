@@ -1,0 +1,19 @@
+<launch>
+  <!-- 摄像头 0 -->
+  <node name="usb_cam0" pkg="usb_cam" type="usb_cam_node" output="screen">
+    <param name="video_device" value="/dev/video0" /> 
+    <param name="image_width" value="640" />
+    <param name="image_height" value="480" />
+    <param name="pixel_format" value="yuyv" />
+    <param name="camera_frame_id" value="usb_cam0_optical_frame" />    
+  </node>
+
+  <!-- 摄像头 1 -->
+   <node name="usb_cam1" pkg="usb_cam" type="usb_cam_node" output="screen">
+    <param name="video_device" value="/dev/video12" /> 
+    <param name="image_width" value="640" />
+    <param name="image_height" value="480" />
+    <param name="pixel_format" value="yuyv" />
+    <param name="camera_frame_id" value="usb_cam1_optical_frame" />    
+  </node> 
+</launch>
